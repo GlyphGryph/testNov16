@@ -57,7 +57,7 @@
   Does order matter? I could say YES because it makes it easier for testing, but lets make the tests order agnostic.
 
 2. Development Plan
-  - Create the script file. One should be enough.
+  - Create the script file that executes the code in the right context and outputs the file, and a script file that actually contains the method to implement.
   - Output some bogus json format.
   - Write a test of some sort that mocks out the prescription API, and expects the same information as the prescription API but in the desired output format, specifically the same number of entries and an entry with a matching id and medid for each prescription. Will fail, obviously.
   - Make the "get" request to the API to get all the prescriptions

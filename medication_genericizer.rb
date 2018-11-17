@@ -44,10 +44,10 @@ class MedicationGenericizer
     }
   end
 
-  def self.execute
+  def self.execute(medications_url, prescriptions_url)
     # Make Requests
-    medications_uri = URI.parse('http://api-sandbox.pillpack.com/medications')
-    prescriptions_uri = URI.parse('http://api-sandbox.pillpack.com/prescriptions')
+    medications_uri = URI.parse(medications_url)
+    prescriptions_uri = URI.parse(prescriptions_url)
     
     # This is probably a bit overbuilt, but I don't use the Net::HTTP code often
     # Best to just do it the way I know is gonna work right
@@ -67,10 +67,6 @@ class MedicationGenericizer
     results = genericize(prescriptions, medications)
     # Create file
     
-    return {
-      meds: medications,
-      pre: prescriptions,
-      res: results
-    }
+    return results.to_json
   end
 end

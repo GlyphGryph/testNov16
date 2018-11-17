@@ -1,7 +1,12 @@
 require "minitest/autorun"
 require "./medication_genericizer"
+require 'json'
 
 class TestMedicationGenericizer < Minitest::Test
+  # Note: These SHOULD be in actual flat json fails, since this doesn't quite capture
+  # the complexities of parsing requested json, among other reasons.
+  # For example, referring to symbols in our code would possibly result in an error reading from actual jsons
+  # However, for convenience of reference and not cluttering up this folder, I've defined the test data inline here
   def setup
     @medications = [
       {

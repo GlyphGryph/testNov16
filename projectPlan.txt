@@ -54,23 +54,26 @@
   
   Lingering questions:
   Scaling issues. Gonna ignore this one.
-  Does order matter? I could say YES because it makes it easier for testing, but lets make the tests order agnostic.
+  Does order matter? I will say YES because it makes it easier for testing. It probably shouldn't though!
 
 2. Development Plan
-  - Create the script file that executes the code in the right context and outputs the file, and a script file that actually contains the method to implement.
-  - Output some bogus json format.
-  - Write a test of some sort that mocks out the prescription API, and expects the same information as the prescription API but in the desired output format, specifically the same number of entries and an entry with a matching id and medid for each prescription. Will fail, obviously.
-  - Make the "get" request to the API to get all the prescriptions
-  - Have the app call a genericized function by passing in the results of the get request and and getting a json compatible object returned. If we ever want to actually USE this function, this will let us easily pop it into and out of the specific context. (since this isn't a good context!)
-  - Have the app return a list of prescriptions in the appropriate format.
-    - Strip the prescriptions of irrelevant data
-    - Return as a JSON object with the right confines
-  - Make sure the test runs green.
-  - Modify the test so it fails again, by mocking out the medications API and expecting the changed results with substitutions. Test the results in an order agnostic way.
-  - Make a "get" request and get all the medications and pass it into the function
-  - Create "access" versions of the medication list. Note: This will technically increase efficiency, but really it's because it makes the problem easier. Medication By ID and then Generics by RXCUI
-  - For each prescription, find it's medication id in the Medication By ID list, and then pull the RXCUI
-  - For each RXCUI, see if it has a matching Generic in the Generics by RXCUI item
-  - Add the prescription id and generic medication id to the output list
-  - Test should now run green.
+  - Create the script file. One should be enough.
+  Part 1: Genericize Function
+    - Output some bogus json format.
+    - Write a test of some sort that mocks out the prescription API
+    - Have the app call a genericized function by passing in the results of the get request and and getting a json compatible object returned. If we ever want to actually USE this function, this will let us easily pop it into and out of the specific context. (since this isn't a good context!)
+    - Have the app return a list of prescriptions in the appropriate format.
+      - Strip the prescriptions of irrelevant data
+      - Return as a JSON object with the right confines
+    - Make sure the test runs green.
+    - Modify the test so it fails again, by mocking out the medications API and expecting the changed results with substitutions.
+    - Create "access" versions of the medication list. Medication By ID and then Generics by RXCUI.
+      Note: This will technically increase efficiency, but really it's because it makes the problem easier to solve.
+    - For each prescription, find it's medication id in the Medication By ID list, and then pull the RXCUI
+    - For each RXCUI, see if it has a matching Generic in the Generics by RXCUI item
+    - Add the prescription id and generic medication id to the output list
+    - Test should now run green.
+  Part 2: API communication and file output
+    - Make the "get" request to the API to get all the prescriptions to pass to the function
+    - Make a "get" request and get all the medications and pass it into the function
   Done! Easy as.

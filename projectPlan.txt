@@ -1,0 +1,76 @@
+1. Initial Reading
+---
+  Background:
+  PillPack substitutes generics for brand names when and where it can.
+
+  The generic equivalent of a brand name can be identified by identical "RXCUI"s, a kind of identifier.
+
+  A database exists that contains a list of all needed brand name and generic medications.
+
+  Task:
+  Implement the ability to modify prescriptions such that any brand name prescriptions are replaced with generic prescriptions.
+
+  Thoughts on the concept behind the project:
+  Implementation context - When should this "search" actually occur? We know the scope in terms of what it should effect "every prescription associated with a brand name medication", but not in terms of when that replacement happens. Is this a manually run task? Something that happens automatically at some point in the process?
+  Execution Context - Will this search be run on the same server as the data? As an external service?
+  Backwards-compatability - How does this interact with existing name brand prescriptions from before this feature is implemented?
+  Future-compatability - When new generics are identified, do we update existing prescriptions?
+  Completeness - What ways can prescriptions be created? What ways might they be created in the future? Do we have a means to enforce this logic on all creation routes?
+  Data Integrity - Information on these prescriptions exist exist outside of our system. How are these changes propagate to those outside the system to keep information in sync? Are there any other references inside our application that also need to be updated? If a new generic is released after this information has been accessed and seen to be using the name brand, how important is it that we stick to what we've already declared?
+  Expansions - Are there different generics? Would we ever want a situation where we would want to replace one generic with another generic? I don't actually know enough about what a generic really "is" to determine that though...
+  Size of data sets - How large a data set is this supposed to work with? Do we need to break up our requests? Will we experience problems trying to work with this data?
+
+  The big question is the context of when this is run. Many of these problems can be rendered not-problems by adopting an "as needed" replacement system, that only implements prescription generic replacements when the prescription information is actually needed. This could create a serious data integrity problem if done irresponsibly, or more than once on a single prescription.
+
+  My information on the problem space is insufficient to make these determinations with complete certainty.
+
+  So let's see if the "goals" section clarifies this:
+
+  - Create a solution (in any language) that identifies all prescriptions that need a substitute medication.
+  - The output of the solution should be a JSON document containing the full list of necessary prescription updates. Note that this says UPDATES, so I'm interpreting that to mean only the prescriptions that will be changed.
+
+  Okay, it sounds like what we are looking for an individual executable function of code that works as a batch process, then. Which makes sense for the initial wording. Easier implementation than the alternatives in some ways - but probably also not how we'd want things working on a production system! Also, not sure if the output JSON needs to be ordered
+
+  Additional requirements:
+  Code is my own work, but I'm free to consult existing documentation for useful tools and libraries.
+  The code will be put through a standard peer review process. Execution instructions important.
+  An executable binary for macOS High Sierra is desired. (I don't have access to that OS)
+
+  Additional Notes:
+  It's only psuedo-real data.
+  What is the "NDC" attribute about?
+  The actual data can't be changed through the API, it is static.
+
+  This is the API: http://api-sandbox.pillpack.com/
+
+2. Post-reading
+  The project as I understand it:
+  Write a script that can make a request to http://api-sandbox.pillpack.com/ to get all existing prescriptions and all existing medications, and then output a json file that contains a list of all prescriptions where a brand name can be substituted for a generic, and the generic that can be substituted.
+
+  This is a pretty simple task, but some of the concerns raised on the initial reading remain, specifically the concerns relating to performance. Do we want to perform any kind of trimming of our data? That would almost certainly require changing the API or the output format, so I don't think it's really an option on either side. We'll just have to note that down as a future concern - "DOES NOT SCALE".
+
+  Thoughts on languages, tools and libraries:
+  The two obvious choices here are Javascript and Ruby. Either way, it sounds like I'm only building a simple script - I don't need to use a framework or anything. Ruby has the benefit of being more robust in term of development tools, while javascript works more widely as an executable. Since the desired outcome is a Mac executable, and I don't have a Mac environment to test any compiled ruby executable. I'm going to go with Ruby and just give them instructions on how to run the simple script, since creating the json format file (Rather than simply displaying it in a browser) is easier that way, and I'm more familiar with the testing tools.
+  
+  Lingering questions:
+  Scaling issues. Gonna ignore this one.
+  Does order matter? I could say YES because it makes it easier for testing, but lets make the tests order agnostic.
+
+2. Development Plan
+  - Create the script file. One should be enough.
+  - Output some bogus json format.
+  - Write a test of some sort that mocks out the prescription API, and expects the same information as the prescription API but in the desired output format, specifically the same number of entries and an entry with a matching id and medid for each prescription. Will fail, obviously.
+  - Make the "get" request to the API to get all the prescriptions
+  - Have the app call a genericized function by passing in the results of the get request and and getting a json compatible object returned. If we ever want to actually USE this function, this will let us easily pop it into and out of the specific context. (since this isn't a good context!)
+  - Have the app return a list of prescriptions in the appropriate format.
+    - Strip the prescriptions of irrelevant data
+    - Return as a JSON object with the right confines
+  - Make sure the test runs green.
+  - Modify the test so it fails again, by mocking out the medications API and expecting the changed results with substitutions. Test the results in an order agnostic way.
+  - Make a "get" request and get all the medications and pass it into the function
+  - Create "access" versions of the medication list. Note: This will technically increase efficiency, but really it's because it makes the problem easier. Medication By ID and then Generics by RXCUI
+  - For each prescription, find it's medication id in the Medication By ID list, and then pull the RXCUI
+  - For each RXCUI, see if it has a matching Generic in the Generics by RXCUI item
+  - Add the prescription id and generic medication id to the output list
+  - Test should now run green.
+  Done! Easy as.

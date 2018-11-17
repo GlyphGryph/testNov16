@@ -71,7 +71,7 @@
       Note: This will technically increase efficiency, but really it's because it makes the problem easier to solve.
     - For each prescription, find it's medication id in the Medication By ID list, and then pull the RXCUI
     - For each RXCUI, see if it has a matching Generic in the Generics by RXCUI item
-    - Add the prescription id and generic medication id to the output list
+    - Add the prescription id and generic medication id to the output list if not already using the generic
     - Test should now run green.
   Part 2: API communication and file output
     - Make the "get" request to the API to get all the prescriptions to pass to the function
